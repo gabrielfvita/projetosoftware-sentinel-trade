@@ -56,13 +56,13 @@ As tecnologias utilizadas na implementação serão adicionadas conforme o desen
 
 ## 📂 Documentação
 
-A documentação do projeto está disponível na pasta `docs/`, contendo os requisitos, diagramas e demais evidências produzidas durante o desenvolvimento.
+A documentação do projeto está disponível na pasta `docs/`, contendo os requisitos, diagramas e casos de uso.
 
 ```text
 docs/
-├── requisitos/
+├── casos de uso/
 ├── diagramas/
-└── evidencias/
+└── requisitos/
 ```
 
 ---
