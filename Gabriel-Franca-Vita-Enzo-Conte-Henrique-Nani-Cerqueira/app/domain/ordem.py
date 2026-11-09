@@ -9,13 +9,18 @@ class Ordem:
         codigo_ativo: str,
         tipo: TipoOrdem,
         quantidade: int,
-        preco: float
+        preco: float,
+        quantidade_executada: int = 0,
+        preco_medio_execucao: float | None = None,
     ):
         if quantidade <= 0:
             raise ValueError("A quantidade deve ser maior que zero.")
-
         if preco <= 0:
-            raise ValueError("O preço deve ser maior que zero.")
+            raise ValueError("O preco limite deve ser maior que zero.")
+        if quantidade_executada < 0 or quantidade_executada > quantidade:
+            raise ValueError("Quantidade executada invalida.")
+        if preco_medio_execucao is not None and preco_medio_execucao <= 0:
+            raise ValueError("Preco medio de execucao invalido.")
 
         self._id_ordem = id_ordem
         self._id_conta = id_conta
@@ -23,122 +28,97 @@ class Ordem:
         self._tipo = tipo
         self._quantidade = quantidade
         self._preco = preco
+        self._quantidade_executada = quantidade_executada
+        self._preco_medio_execucao = preco_medio_execucao
         self._estado = EstadoOrdem.CRIADA
 
     @property
-    def id_ordem(self) -> int | None:
-        return self._id_ordem
-
+    def id_ordem(self): return self._id_ordem
     @property
-    def id_conta(self) -> int:
-        return self._id_conta
-
+    def id_conta(self): return self._id_conta
     @property
-    def codigo_ativo(self) -> str:
-        return self._codigo_ativo
-
+    def codigo_ativo(self): return self._codigo_ativo
     @property
-    def tipo(self) -> TipoOrdem:
-        return self._tipo
-
+    def tipo(self): return self._tipo
     @property
-    def quantidade(self) -> int:
-        return self._quantidade
-
+    def quantidade(self): return self._quantidade
     @property
-    def preco(self) -> float:
-        return self._preco
-
+    def preco(self): return self._preco
     @property
-    def estado(self) -> EstadoOrdem:
-        return self._estado
+    def preco_limite(self): return self._preco
+    @property
+    def preco_medio_execucao(self): return self._preco_medio_execucao
+    @property
+    def estado(self): return self._estado
+    @property
+    def quantidade_executada(self): return self._quantidade_executada
+    @property
+    def quantidade_remanescente(self): return self._quantidade - self._quantidade_executada
 
     def validar(self) -> None:
         if self._estado != EstadoOrdem.CRIADA:
-            raise ValueError(
-                "Apenas ordens criadas podem ser validadas."
-            )
-
+            raise ValueError("Apenas ordens criadas podem ser validadas.")
         self._estado = EstadoOrdem.VALIDADA
 
     def enviar(self) -> None:
         if self._estado != EstadoOrdem.VALIDADA:
-            raise ValueError(
-                "Apenas ordens validadas podem ser enviadas."
-            )
-
+            raise ValueError("Apenas ordens validadas podem ser enviadas.")
         self._estado = EstadoOrdem.ENVIADA
 
-    def executar_parcialmente(self) -> None:
-        if self._estado not in {
-            EstadoOrdem.ENVIADA,
-            EstadoOrdem.PARCIALMENTE_EXECUTADA
-        }:
-            raise ValueError(
-                "A ordem não pode ser parcialmente executada neste estado."
-            )
+    def registrar_execucao(self, quantidade: int, preco_execucao: float | None = None) -> None:
+        if self._estado not in {EstadoOrdem.ENVIADA, EstadoOrdem.PARCIALMENTE_EXECUTADA}:
+            raise ValueError("A ordem nao pode ser executada neste estado.")
+        if quantidade <= 0 or quantidade > self.quantidade_remanescente:
+            raise ValueError("Quantidade de execucao invalida.")
 
-        self._estado = EstadoOrdem.PARCIALMENTE_EXECUTADA
+        preco = self._preco if preco_execucao is None else preco_execucao
+        if preco <= 0:
+            raise ValueError("Preco de execucao invalido.")
 
-    def executar(self) -> None:
-        if self._estado not in {
-            EstadoOrdem.ENVIADA,
-            EstadoOrdem.PARCIALMENTE_EXECUTADA
-        }:
-            raise ValueError(
-                "A ordem não pode ser executada neste estado."
-            )
+        valor_anterior = (self._preco_medio_execucao or 0) * self._quantidade_executada
+        nova_quantidade = self._quantidade_executada + quantidade
+        self._preco_medio_execucao = (valor_anterior + preco * quantidade) / nova_quantidade
+        self._quantidade_executada = nova_quantidade
 
-        self._estado = EstadoOrdem.EXECUTADA
+        if self._quantidade_executada == self._quantidade:
+            self._estado = EstadoOrdem.EXECUTADA
+        else:
+            self._estado = EstadoOrdem.PARCIALMENTE_EXECUTADA
+
+    def executar_parcialmente(self, quantidade: int | None = None, preco_execucao: float | None = None) -> None:
+        restante = self.quantidade_remanescente
+        if restante <= 1:
+            raise ValueError("Nao ha quantidade suficiente para execucao parcial.")
+        qtd = quantidade if quantidade is not None else max(1, restante // 2)
+        if qtd >= restante:
+            raise ValueError("Execucao parcial deve manter quantidade remanescente.")
+        self.registrar_execucao(qtd, preco_execucao)
+
+    def executar(self, preco_execucao: float | None = None) -> None:
+        if self.quantidade_remanescente <= 0:
+            raise ValueError("A ordem ja foi totalmente executada.")
+        self.registrar_execucao(self.quantidade_remanescente, preco_execucao)
 
     def rejeitar(self) -> None:
-        if self._estado not in {
-            EstadoOrdem.CRIADA,
-            EstadoOrdem.ENVIADA
-        }:
-            raise ValueError(
-                "A ordem não pode ser rejeitada neste estado."
-            )
-
+        if self._estado not in {EstadoOrdem.CRIADA, EstadoOrdem.ENVIADA}:
+            raise ValueError("A ordem nao pode ser rejeitada neste estado.")
         self._estado = EstadoOrdem.REJEITADA
 
     def cancelar(self) -> None:
-        if self._estado not in {
-            EstadoOrdem.VALIDADA,
-            EstadoOrdem.ENVIADA,
-            EstadoOrdem.PARCIALMENTE_EXECUTADA
-        }:
-            raise ValueError(
-                "A ordem não pode ser cancelada neste estado."
-            )
-
+        if self._estado not in {EstadoOrdem.ENVIADA, EstadoOrdem.PARCIALMENTE_EXECUTADA}:
+            raise ValueError("A ordem nao pode ser cancelada neste estado.")
         self._estado = EstadoOrdem.CANCELADA
 
-    def atualizar(
-        self,
-        quantidade: int | None = None,
-        preco: float | None = None
-    ) -> None:
-        if self._estado not in {
-            EstadoOrdem.CRIADA,
-            EstadoOrdem.VALIDADA
-        }:
-            raise ValueError(
-                "A ordem não pode ser atualizada neste estado."
-            )
-
+    def atualizar(self, quantidade: int | None = None, preco: float | None = None) -> None:
+        if self._estado not in {EstadoOrdem.CRIADA, EstadoOrdem.VALIDADA}:
+            raise ValueError("A ordem nao pode ser atualizada neste estado.")
         if quantidade is not None:
             if quantidade <= 0:
-                raise ValueError(
-                    "A quantidade deve ser maior que zero."
-                )
-
+                raise ValueError("A quantidade deve ser maior que zero.")
+            if quantidade < self._quantidade_executada:
+                raise ValueError("Quantidade nao pode ser menor que a ja executada.")
             self._quantidade = quantidade
-
         if preco is not None:
             if preco <= 0:
-                raise ValueError(
-                    "O preço deve ser maior que zero."
-                )
-
+                raise ValueError("O preco limite deve ser maior que zero.")
             self._preco = preco

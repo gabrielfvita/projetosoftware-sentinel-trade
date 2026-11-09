@@ -1,0 +1,6 @@
+import { useEffect,useState } from "react"; import api from "../api/api"; import Layout from "../components/Layout"; import PageHeader from "../components/PageHeader";
+const brl=v=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(v||0));
+export default function Ativos(){const [d,setD]=useState([]),[e,setE]=useState("");useEffect(()=>{api.get("/ativos").then(r=>setD(Array.isArray(r.data)?r.data:[])).catch(x=>setE(x.response?.data?.detail||"Erro ao consultar ativos."))},[]);
+return <Layout><PageHeader eyebrow="MARKET DATA" title="Ativos" description="Instrumentos e cotações disponíveis no ambiente simulado."/>
+<section className="terminal-panel"><div className="terminal-panel-head"><div><span>INSTRUMENTS</span><h2>Mercado</h2></div><span>{d.length} ativos</span></div>
+{e?<div className="state-panel error-state">{e}</div>:!d.length?<div className="state-panel">Nenhum ativo.</div>:<div className="table-wrapper"><table><thead><tr><th>Código</th><th>Nome</th><th>Tipo</th><th>Cotação</th></tr></thead><tbody>{d.map((a,i)=><tr key={i}><td><strong>{a.codigo??"—"}</strong></td><td>{a.nome??a.descricao??"—"}</td><td>{String(a.tipo??"—").toUpperCase()}</td><td>{brl(a.cotacao??a.preco)}</td></tr>)}</tbody></table></div>}</section></Layout>}

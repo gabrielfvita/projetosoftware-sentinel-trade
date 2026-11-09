@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.ativos import router as ativos_router
 from app.api.auth import router as auth_router
@@ -17,11 +18,13 @@ from app.database import models
 from app.database.auditoria_triggers import (
     criar_triggers_auditoria
 )
+from app.database.migracoes import executar_migracoes
 
 
 Base.metadata.create_all(
     bind=engine
 )
+executar_migracoes()
 
 criar_triggers_auditoria()
 
@@ -33,6 +36,16 @@ app = FastAPI(
         "e execução de ordens financeiras."
     ),
     version="1.0.0"
+)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[],
+    allow_origin_regex=r"^http://(localhost|127\.0\.0\.1):\d+$",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

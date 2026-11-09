@@ -98,7 +98,9 @@ class OrdemModel(Base):
 
     tipo = Column(String(10), nullable=False)
     quantidade = Column(Integer, nullable=False)
+    quantidade_executada = Column(Integer, nullable=False, default=0)
     preco = Column(Float, nullable=False)
+    preco_medio_execucao = Column(Float, nullable=True)
     estado = Column(String(30), nullable=False)
 
     chave_idempotencia = Column(

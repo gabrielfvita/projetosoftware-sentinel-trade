@@ -67,6 +67,19 @@ class ContaRepository:
             .all()
         )
 
+
+    def buscar_primeira_por_investidor(self, investidor_id: int) -> ContaModel | None:
+        return (
+            self._db.query(ContaModel)
+            .filter(ContaModel.investidor_id == investidor_id)
+            .order_by(ContaModel.id)
+            .first()
+        )
+
+    def buscar_investidor_id(self, conta_id: int) -> int | None:
+        model = self.buscar_model_por_id(conta_id)
+        return None if model is None else model.investidor_id
+
     def atualizar(
         self,
         conta: Conta

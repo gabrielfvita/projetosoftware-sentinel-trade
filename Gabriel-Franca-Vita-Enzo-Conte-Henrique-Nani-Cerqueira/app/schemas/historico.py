@@ -9,7 +9,11 @@ class HistoricoOrdemResponse(BaseModel):
     codigo_ativo: str
     tipo: str
     quantidade: int
+    quantidade_executada: int
+    quantidade_remanescente: int
     preco: float
+    preco_limite: float
+    preco_medio_execucao: float | None
     estado: str
 
 

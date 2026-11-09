@@ -83,10 +83,18 @@ def test_nao_pode_enviar_ordem_criada_sem_validacao():
         ordem.enviar()
 
 
-def test_ordem_validada_pode_ser_cancelada():
+def test_ordem_validada_nao_pode_ser_cancelada():
     ordem = criar_ordem()
-
     ordem.validar()
+
+    with pytest.raises(ValueError):
+        ordem.cancelar()
+
+
+def test_ordem_enviada_pode_ser_cancelada():
+    ordem = criar_ordem()
+    ordem.validar()
+    ordem.enviar()
     ordem.cancelar()
 
     assert ordem.estado == EstadoOrdem.CANCELADA
@@ -133,3 +141,34 @@ def test_ordem_enviada_pode_ser_reconciliada_em_estado():
     ordem.enviar()
 
     assert ordem.estado == EstadoOrdem.ENVIADA
+
+def test_execucao_parcial_registra_quantidade():
+    ordem = criar_ordem()
+    ordem.validar()
+    ordem.enviar()
+    ordem.executar_parcialmente(4)
+
+    assert ordem.estado == EstadoOrdem.PARCIALMENTE_EXECUTADA
+    assert ordem.quantidade_executada == 4
+    assert ordem.quantidade_remanescente == 6
+
+
+def test_execucao_restante_finaliza_ordem():
+    ordem = criar_ordem()
+    ordem.validar()
+    ordem.enviar()
+    ordem.executar_parcialmente(4)
+    ordem.executar()
+
+    assert ordem.estado == EstadoOrdem.EXECUTADA
+    assert ordem.quantidade_executada == 10
+    assert ordem.quantidade_remanescente == 0
+
+
+def test_preco_medio_execucao_usa_preco_de_mercado():
+    ordem = criar_ordem()
+    ordem.validar()
+    ordem.enviar()
+    ordem.executar_parcialmente(4, 38.0)
+    ordem.executar(40.0)
+    assert ordem.preco_medio_execucao == pytest.approx((4 * 38.0 + 6 * 40.0) / 10)

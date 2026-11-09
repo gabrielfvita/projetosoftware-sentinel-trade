@@ -36,7 +36,7 @@
         <mxCell id="wuEjLm0dtc_3bmOTvh_M-15" edge="1" parent="1" source="wuEjLm0dtc_3bmOTvh_M-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;" target="wuEjLm0dtc_3bmOTvh_M-14">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="wuEjLm0dtc_3bmOTvh_M-16" connectable="0" parent="wuEjLm0dtc_3bmOTvh_M-15" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;defaultLabelBackgroundColor=page;" value="Transmissão Confirmada" vertex="1">
+        <mxCell id="wuEjLm0dtc_3bmOTvh_M-16" connectable="0" parent="wuEjLm0dtc_3bmOTvh_M-15" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;defaultLabelBackgroundColor=page;" value="Transmissão Confirmada / aguarda condição de preço" vertex="1">
           <mxGeometry relative="1" x="-0.2263" as="geometry">
             <mxPoint x="-70" as="offset" />
           </mxGeometry>
@@ -63,7 +63,7 @@
             <mxPoint x="468.6" y="435.88" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="wuEjLm0dtc_3bmOTvh_M-24" connectable="0" parent="wuEjLm0dtc_3bmOTvh_M-20" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;defaultLabelBackgroundColor=page;" value="Execução Total" vertex="1">
+        <mxCell id="wuEjLm0dtc_3bmOTvh_M-24" connectable="0" parent="wuEjLm0dtc_3bmOTvh_M-20" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;defaultLabelBackgroundColor=page;" value="Cotação atende limite / Execução Total" vertex="1">
           <mxGeometry relative="1" x="-0.3021" y="1" as="geometry">
             <mxPoint x="17" y="-9" as="offset" />
           </mxGeometry>
@@ -133,7 +133,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="wuEjLm0dtc_3bmOTvh_M-25" connectable="0" parent="wuEjLm0dtc_3bmOTvh_M-21" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;defaultLabelBackgroundColor=page;" value="Execução Parcial" vertex="1">
+        <mxCell id="wuEjLm0dtc_3bmOTvh_M-25" connectable="0" parent="wuEjLm0dtc_3bmOTvh_M-21" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;defaultLabelBackgroundColor=page;" value="Cotação atende limite / Execução Parcial" vertex="1">
           <mxGeometry relative="1" x="-0.1746" y="1" as="geometry">
             <mxPoint x="22" y="-9" as="offset" />
           </mxGeometry>

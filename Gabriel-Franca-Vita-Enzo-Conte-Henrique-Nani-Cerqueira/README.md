@@ -402,3 +402,7 @@ Foram desenvolvidos:
 O SentinelTrade é um sistema acadêmico e simulado.
 
 Não realiza negociações reais, não movimenta dinheiro real e não possui integração com bolsas de valores reais.
+
+## Ordens limitadas
+
+O campo de preço das ordens é um **preço limite**. Compras só executam quando a cotação estiver no limite ou abaixo; vendas, no limite ou acima. Se a condição não for atendida, a ordem permanece enviada e pode ser cancelada. A execução financeira utiliza a cotação vigente e registra o preço médio executado.

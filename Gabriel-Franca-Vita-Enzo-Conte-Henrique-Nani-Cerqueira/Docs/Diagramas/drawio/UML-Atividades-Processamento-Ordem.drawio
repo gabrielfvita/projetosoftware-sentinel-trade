@@ -116,13 +116,13 @@
         <mxCell id="LziXZFICDfLVS8QCvo3Z-26" parent="LziXZFICDfLVS8QCvo3Z-3" style="whiteSpace=wrap;html=1;rounded=1;roundedPerimeter=1;" value="Registrar rejeição da ordem" vertex="1">
           <mxGeometry height="60" width="120" x="200" y="330" as="geometry" />
         </mxCell>
-        <mxCell id="LziXZFICDfLVS8QCvo3Z-29" parent="LziXZFICDfLVS8QCvo3Z-3" style="whiteSpace=wrap;html=1;rounded=1;roundedPerimeter=1;" value="Transmitir ordem validada" vertex="1">
+        <mxCell id="LziXZFICDfLVS8QCvo3Z-29" parent="LziXZFICDfLVS8QCvo3Z-3" style="whiteSpace=wrap;html=1;rounded=1;roundedPerimeter=1;" value="Transmitir ordem validada com preço limite" vertex="1">
           <mxGeometry height="60" width="120" x="380" y="450" as="geometry" />
         </mxCell>
         <mxCell id="LziXZFICDfLVS8QCvo3Z-58" edge="1" parent="LziXZFICDfLVS8QCvo3Z-3" source="LziXZFICDfLVS8QCvo3Z-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;" target="LziXZFICDfLVS8QCvo3Z-57" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="LziXZFICDfLVS8QCvo3Z-51" parent="LziXZFICDfLVS8QCvo3Z-3" style="rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;" value="Receber resultado e atualizar estado da ordem" vertex="1">
+        <mxCell id="LziXZFICDfLVS8QCvo3Z-51" parent="LziXZFICDfLVS8QCvo3Z-3" style="rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;" value="Receber resultado; executar ou manter enviada aguardando preço" vertex="1">
           <mxGeometry height="60" width="120" x="190" y="440" as="geometry" />
         </mxCell>
         <mxCell id="LziXZFICDfLVS8QCvo3Z-60" edge="1" parent="LziXZFICDfLVS8QCvo3Z-3" source="LziXZFICDfLVS8QCvo3Z-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;" target="LziXZFICDfLVS8QCvo3Z-59" value="">
@@ -192,7 +192,7 @@
         <mxCell id="LziXZFICDfLVS8QCvo3Z-34" edge="1" parent="LziXZFICDfLVS8QCvo3Z-4" source="LziXZFICDfLVS8QCvo3Z-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;" target="LziXZFICDfLVS8QCvo3Z-33" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="LziXZFICDfLVS8QCvo3Z-31" parent="LziXZFICDfLVS8QCvo3Z-4" style="whiteSpace=wrap;html=1;rounded=1;roundedPerimeter=1;" value="Receber e processar ordem simulada" vertex="1">
+        <mxCell id="LziXZFICDfLVS8QCvo3Z-31" parent="LziXZFICDfLVS8QCvo3Z-4" style="whiteSpace=wrap;html=1;rounded=1;roundedPerimeter=1;" value="Comparar preço limite com cotação e processar ordem" vertex="1">
           <mxGeometry height="60" width="120" x="120" y="50" as="geometry" />
         </mxCell>
         <mxCell id="LziXZFICDfLVS8QCvo3Z-36" edge="1" parent="LziXZFICDfLVS8QCvo3Z-4" source="LziXZFICDfLVS8QCvo3Z-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;exitX=0;exitY=1;exitDx=0;exitDy=0;" target="LziXZFICDfLVS8QCvo3Z-35" value="Executada">

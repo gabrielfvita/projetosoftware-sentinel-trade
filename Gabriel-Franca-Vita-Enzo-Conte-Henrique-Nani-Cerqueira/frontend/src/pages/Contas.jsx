@@ -1,0 +1,5 @@
+import { useEffect,useState } from "react";import api from "../api/api";import Layout from "../components/Layout";import PageHeader from "../components/PageHeader";
+const brl=v=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(v||0));
+export default function Contas(){const [d,setD]=useState(null),[e,setE]=useState("");useEffect(()=>{api.get("/contas/minha-conta").then(r=>setD(r.data)).catch(x=>setE(x.response?.data?.detail||"Erro ao carregar conta."))},[]);
+return <Layout><PageHeader eyebrow="ACCOUNT CONTROL" title="Contas" description="Parâmetros financeiros e situação operacional da conta."/>
+{e&&<div className="state-panel error-state">{e}</div>}{d&&<section className="terminal-panel account-panel"><div className="terminal-panel-head"><div><span>ACCOUNT</span><h2>Conta #{d.id??d.id_conta??1}</h2></div></div><div className="summary-list"><div><span>Saldo</span><strong>{brl(d.saldo??d.saldo_disponivel)}</strong></div><div><span>Limite de risco</span><strong>{brl(d.limite_risco)}</strong></div><div><span>Status</span><strong>{String(d.situacao??"ativa").toUpperCase()}</strong></div></div></section>}</Layout>}
