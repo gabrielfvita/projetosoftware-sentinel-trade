@@ -32,15 +32,22 @@ class OrdemRepository:
 
         return ordem
 
-    def atualizar(self, ordem: Ordem) -> Ordem:
+    def atualizar(
+        self,
+        ordem: Ordem
+    ) -> Ordem:
         model = (
             self._db.query(OrdemModel)
-            .filter(OrdemModel.id == ordem.id_ordem)
+            .filter(
+                OrdemModel.id == ordem.id_ordem
+            )
             .first()
         )
 
         if model is None:
-            raise ValueError("Ordem não encontrada.")
+            raise ValueError(
+                "Ordem não encontrada."
+            )
 
         model.estado = ordem.estado.value
         model.quantidade = ordem.quantidade
@@ -51,16 +58,10 @@ class OrdemRepository:
 
         return ordem
 
-    def buscar_por_id(self, id_ordem: int) -> Ordem | None:
-        model = (
-            self._db.query(OrdemModel)
-            .filter(OrdemModel.id == id_ordem)
-            .first()
-        )
-
-        if model is None:
-            return None
-
+    def _converter_model(
+        self,
+        model: OrdemModel
+    ) -> Ordem:
         ordem = Ordem(
             id_ordem=model.id,
             id_conta=model.conta_id,
@@ -70,35 +71,76 @@ class OrdemRepository:
             preco=model.preco
         )
 
-        ordem._estado = EstadoOrdem(model.estado)
+        ordem._estado = EstadoOrdem(
+            model.estado
+        )
 
         return ordem
 
-    def listar(self) -> list[Ordem]:
-        models = self._db.query(OrdemModel).all()
-
-        ordens: list[Ordem] = []
-
-        for model in models:
-            ordem = Ordem(
-                id_ordem=model.id,
-                id_conta=model.conta_id,
-                codigo_ativo=model.codigo_ativo,
-                tipo=TipoOrdem(model.tipo),
-                quantidade=model.quantidade,
-                preco=model.preco
+    def buscar_por_id(
+        self,
+        id_ordem: int
+    ) -> Ordem | None:
+        model = (
+            self._db.query(OrdemModel)
+            .filter(
+                OrdemModel.id == id_ordem
             )
+            .first()
+        )
 
-            ordem._estado = EstadoOrdem(model.estado)
-            ordens.append(ordem)
+        if model is None:
+            return None
 
-        return ordens
+        return self._converter_model(
+            model
+        )
 
-    def existe_chave_duplicidade(self, chave_idempotencia: str) -> bool:
+    def listar(
+        self
+    ) -> list[Ordem]:
+        models = (
+            self._db.query(OrdemModel)
+            .order_by(
+                OrdemModel.criada_em.desc()
+            )
+            .all()
+        )
+
+        return [
+            self._converter_model(model)
+            for model in models
+        ]
+
+    def listar_por_conta(
+        self,
+        conta_id: int
+    ) -> list[Ordem]:
+        models = (
+            self._db.query(OrdemModel)
+            .filter(
+                OrdemModel.conta_id == conta_id
+            )
+            .order_by(
+                OrdemModel.criada_em.desc()
+            )
+            .all()
+        )
+
+        return [
+            self._converter_model(model)
+            for model in models
+        ]
+
+    def existe_chave_duplicidade(
+        self,
+        chave_idempotencia: str
+    ) -> bool:
         return (
             self._db.query(OrdemModel)
             .filter(
-                OrdemModel.chave_idempotencia == chave_idempotencia
+                OrdemModel.chave_idempotencia
+                == chave_idempotencia
             )
             .first()
             is not None

@@ -86,3 +86,21 @@ CREATE INDEX idx_ordens_conta
 
 CREATE INDEX idx_auditoria_ordem
     ON registros_auditoria(ordem_id);
+
+CREATE TRIGGER impedir_update_auditoria
+BEFORE UPDATE ON registros_auditoria
+BEGIN
+    SELECT RAISE(
+        ABORT,
+        'Registros de auditoria são imutáveis'
+    );
+END;
+
+CREATE TRIGGER impedir_delete_auditoria
+BEFORE DELETE ON registros_auditoria
+BEGIN
+    SELECT RAISE(
+        ABORT,
+        'Registros de auditoria são imutáveis'
+    );
+END;

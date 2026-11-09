@@ -158,3 +158,25 @@ def test_conta_bloqueada():
             ),
             carteira=criar_carteira()
         )
+
+from app.integrations.mercado_simulado import MercadoSimulado
+
+
+def test_mercado_fechado():
+    mercado = MercadoSimulado(
+        aberto=False
+    )
+
+    service = ValidacaoService(
+        mercado=mercado
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="mercado está fechado"
+    ):
+        service.validar_ordem(
+            ordem=criar_ordem_compra(),
+            conta=criar_conta(),
+            carteira=criar_carteira()
+        )

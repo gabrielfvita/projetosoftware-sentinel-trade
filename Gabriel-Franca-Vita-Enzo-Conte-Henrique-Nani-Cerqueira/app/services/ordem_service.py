@@ -325,3 +325,75 @@ class OrdemService:
         )
 
         return ordem
+
+def reconciliar_ordem(
+    self,
+    id_ordem: int
+) -> Ordem:
+    ordem = self.consultar_ordem(
+        id_ordem
+    )
+
+    if ordem.estado.value != "enviada":
+        raise ValueError(
+            "Apenas ordens enviadas podem ser reconciliadas."
+        )
+
+    try:
+        resultado = self._bolsa.processar_ordem()
+
+    except ErroIntegracaoBolsa:
+        self._auditoria_service.registrar(
+            evento="FALHA_RECONCILIACAO",
+            resultado="PENDENTE_RECONCILIACAO",
+            ordem_id=ordem.id_ordem
+        )
+
+        raise ValueError(
+            "A reconciliação não pôde ser concluída. "
+            "A ordem permanece enviada."
+        )
+
+    if resultado == ResultadoBolsa.EXECUTADA:
+        self._aplicar_execucao(
+            ordem=ordem,
+            quantidade_executada=ordem.quantidade
+        )
+
+        ordem.executar()
+
+    elif resultado == ResultadoBolsa.PARCIALMENTE_EXECUTADA:
+        quantidade_parcial = max(
+            1,
+            ordem.quantidade // 2
+        )
+
+        self._aplicar_execucao(
+            ordem=ordem,
+            quantidade_executada=quantidade_parcial
+        )
+
+        ordem.executar_parcialmente()
+
+    elif resultado == ResultadoBolsa.REJEITADA:
+        ordem.rejeitar()
+
+    self._repository.atualizar(
+        ordem
+    )
+
+    self._auditoria_service.registrar(
+        evento="ORDEM_RECONCILIADA",
+        resultado=ordem.estado.value.upper(),
+        ordem_id=ordem.id_ordem
+    )
+
+    self._notificacao.enviar(
+        (
+            f"Ordem {ordem.id_ordem} reconciliada: "
+            f"{ordem.estado.value}"
+        )
+    )
+
+    return ordem
+    

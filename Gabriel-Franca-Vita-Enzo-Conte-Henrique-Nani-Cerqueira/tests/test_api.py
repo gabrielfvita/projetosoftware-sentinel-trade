@@ -1,7 +1,14 @@
+import os
+
+os.environ["MFA_TEST_CODE"] = "123456"
+
 from fastapi.testclient import TestClient
 
+from app.database.seed import popular_banco
 from app.main import app
 
+
+popular_banco()
 
 client = TestClient(app)
 

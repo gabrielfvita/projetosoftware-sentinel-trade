@@ -27,6 +27,20 @@ class CarteiraRepository:
         return carteira
 
     def atualizar(self, carteira: Carteira) -> None:
+        modelos_existentes = (
+            self._db.query(PosicaoCarteiraModel)
+            .filter(
+                PosicaoCarteiraModel.conta_id == carteira.id_carteira
+            )
+            .all()
+        )
+
+        codigos_atuais = set(carteira._posicoes.keys())
+
+        for model in modelos_existentes:
+            if model.codigo_ativo not in codigos_atuais:
+                self._db.delete(model)
+
         for codigo_ativo, posicao in carteira._posicoes.items():
             model = (
                 self._db.query(PosicaoCarteiraModel)

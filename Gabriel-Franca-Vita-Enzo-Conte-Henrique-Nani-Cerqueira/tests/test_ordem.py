@@ -125,3 +125,11 @@ def test_preco_invalido():
             quantidade=10,
             preco=0
         )
+
+def test_ordem_enviada_pode_ser_reconciliada_em_estado():
+    ordem = criar_ordem()
+
+    ordem.validar()
+    ordem.enviar()
+
+    assert ordem.estado == EstadoOrdem.ENVIADA

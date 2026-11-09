@@ -252,3 +252,28 @@ def processar_ordem(
         )
 
     return montar_response(ordem)
+
+@router.post(
+    "/{id_ordem}/reconciliar",
+    response_model=OrdemResponse
+)
+def reconciliar_ordem(
+    id_ordem: int,
+    db: Session = Depends(get_db)
+):
+    service = criar_service(db)
+
+    try:
+        ordem = service.reconciliar_ordem(
+            id_ordem
+        )
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=400,
+            detail=str(erro)
+        )
+
+    return montar_response(
+        ordem
+    )

@@ -37,23 +37,59 @@ Docs/
 
 ## Funcionalidades implementadas
 
-### Autenticação
+O backend do SentinelTrade implementa os 17 requisitos funcionais definidos na modelagem do projeto.
+
+### Autenticação e segurança
 
 - Login por e-mail e senha.
-- Senhas armazenadas utilizando hash.
-- Segundo fator de autenticação (MFA) controlado.
-- Respostas genéricas para credenciais inválidas.
-- Registro de eventos relevantes em auditoria.
+- Segundo fator de autenticação (MFA).
+- Senhas armazenadas utilizando hash seguro.
+- Limite de tentativas de autenticação.
+- Mensagens genéricas para credenciais inválidas.
+- Configuração sensível por variáveis de ambiente.
+
+### Investidores
+
+- Cadastro de investidores.
+- Consulta de investidores.
+- Atualização de dados cadastrais.
+- Desativação de investidores.
+- Validação de e-mail duplicado.
+
+### Contas
+
+- Criação de contas vinculadas a investidores.
+- Consulta de contas.
+- Listagem das contas de um investidor.
+- Atualização do limite de risco.
+- Bloqueio e reativação de contas.
+
+### Carteira
+
+- Consulta do saldo disponível.
+- Consulta do limite de risco.
+- Consulta da situação da conta.
+- Consulta das posições de ativos.
+- Atualização automática da carteira após execução de ordens.
+
+### Ativos e cotações
+
+- Listagem de ativos disponíveis.
+- Consulta de ativo por código.
+- Consulta de cotação por meio de provedor simulado.
+- Validação dos dados recebidos da integração de cotações.
 
 ### Ordens
 
 O sistema permite:
 
-- criar ordens;
+- criar ordens de compra;
+- criar ordens de venda;
 - consultar ordens;
 - atualizar ordens;
 - cancelar ordens;
-- processar ordens por meio de uma bolsa simulada.
+- processar ordens;
+- reconciliar ordens após falhas de comunicação.
 
 Estados suportados:
 
@@ -73,16 +109,56 @@ São realizadas validações de:
 - posição de ativos;
 - limite de risco;
 - situação da conta;
+- situação do mercado;
+- tipo da ordem;
 - prevenção de duplicidade;
 - transições válidas de estado.
 
-### Carteira e saldo
+### Execução de ordens
 
 Quando uma ordem é executada:
 
 - compras debitam o saldo da conta e adicionam ativos à carteira;
-- vendas reduzem a posição e creditam o saldo;
-- execuções parciais alteram somente a quantidade executada.
+- vendas reduzem a posição de ativos e creditam o saldo;
+- execuções parciais alteram apenas a quantidade efetivamente executada.
+
+### Integração com bolsa simulada
+
+- Envio de ordens para bolsa/corretora simulada.
+- Execução total simulada.
+- Execução parcial simulada.
+- Rejeição simulada.
+- Tratamento seguro de falhas de comunicação.
+- Reconciliação de ordens que permaneceram no estado `enviada`.
+
+### Histórico de operações
+
+- Consulta do histórico de ordens por conta.
+- Consulta do estado atual das ordens.
+- Consulta dos eventos de auditoria associados a uma ordem.
+
+### Notificações
+
+- Notificação simulada de cancelamentos.
+- Notificação do resultado do processamento.
+- Notificação do resultado da reconciliação.
+
+### Auditoria
+
+Eventos relevantes são registrados no banco, incluindo:
+
+- autenticação;
+- MFA;
+- criação e atualização de investidores;
+- criação e alteração de contas;
+- criação e validação de ordens;
+- ordens duplicadas;
+- envio para a bolsa;
+- execução, rejeição e cancelamento;
+- falhas de integração;
+- reconciliação.
+
+Os registros de auditoria são protegidos contra alteração e exclusão, garantindo sua imutabilidade.
 
 ### Persistência
 
@@ -102,32 +178,6 @@ O script SQL da estrutura está disponível em:
 ```text
 sql/schema.sql
 ```
-
-### Auditoria
-
-Eventos relevantes são registrados no banco, incluindo:
-
-- falhas de login;
-- validação de senha;
-- MFA;
-- criação e validação de ordens;
-- duplicidade;
-- envio de ordens;
-- resultado da bolsa;
-- cancelamento;
-- atualização de ordens.
-
-Dados sensíveis, como senha e código MFA, não são gravados nos logs de auditoria.
-
-### Integrações simuladas
-
-O projeto possui integrações simuladas para:
-
-- bolsa/corretora;
-- provedor de cotações;
-- serviço de notificações.
-
-As respostas externas são tratadas como dados não confiáveis e passam por validação.
 
 ## Segurança
 
@@ -227,6 +277,40 @@ POST /auth/login
 POST /auth/mfa
 ```
 
+### Investidores
+
+```text
+POST  /investidores
+GET   /investidores
+GET   /investidores/{investidor_id}
+PATCH /investidores/{investidor_id}
+PATCH /investidores/{investidor_id}/desativar
+```
+
+### Contas
+
+```text
+POST  /contas
+GET   /contas/{conta_id}
+GET   /contas/investidor/{investidor_id}
+PATCH /contas/{conta_id}
+PATCH /contas/{conta_id}/bloquear
+PATCH /contas/{conta_id}/ativar
+```
+
+### Carteiras
+
+```text
+GET /carteiras/{conta_id}
+```
+
+### Ativos e cotações
+
+```text
+GET /ativos
+GET /ativos/{codigo}
+```
+
 ### Ordens
 
 ```text
@@ -235,6 +319,14 @@ GET   /ordens/{id_ordem}
 PATCH /ordens/{id_ordem}
 PATCH /ordens/{id_ordem}/cancelar
 POST  /ordens/{id_ordem}/processar
+POST  /ordens/{id_ordem}/reconciliar
+```
+
+### Histórico e auditoria
+
+```text
+GET /historico/contas/{conta_id}/ordens
+GET /historico/ordens/{ordem_id}/auditoria
 ```
 
 ## Testes automatizados

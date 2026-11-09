@@ -8,11 +8,41 @@ class ContaRepository:
     def __init__(self, db: Session):
         self._db = db
 
-    def buscar_por_id(self, id_conta: int) -> Conta | None:
-        model = (
+    def criar(
+        self,
+        investidor_id: int,
+        saldo_disponivel: float,
+        limite_risco: float
+    ) -> ContaModel:
+        model = ContaModel(
+            investidor_id=investidor_id,
+            saldo_disponivel=saldo_disponivel,
+            limite_risco=limite_risco,
+            situacao="ativa"
+        )
+
+        self._db.add(model)
+        self._db.commit()
+        self._db.refresh(model)
+
+        return model
+
+    def buscar_model_por_id(
+        self,
+        id_conta: int
+    ) -> ContaModel | None:
+        return (
             self._db.query(ContaModel)
             .filter(ContaModel.id == id_conta)
             .first()
+        )
+
+    def buscar_por_id(
+        self,
+        id_conta: int
+    ) -> Conta | None:
+        model = self.buscar_model_por_id(
+            id_conta
         )
 
         if model is None:
@@ -25,18 +55,51 @@ class ContaRepository:
             situacao=model.situacao
         )
 
-    def atualizar(self, conta: Conta) -> None:
-        model = (
+    def listar_por_investidor(
+        self,
+        investidor_id: int
+    ) -> list[ContaModel]:
+        return (
             self._db.query(ContaModel)
-            .filter(ContaModel.id == conta.id_conta)
-            .first()
+            .filter(
+                ContaModel.investidor_id == investidor_id
+            )
+            .all()
+        )
+
+    def atualizar(
+        self,
+        conta: Conta
+    ) -> None:
+        model = self.buscar_model_por_id(
+            conta.id_conta
         )
 
         if model is None:
-            raise ValueError("Conta não encontrada.")
+            raise ValueError(
+                "Conta não encontrada."
+            )
 
-        model.saldo_disponivel = conta.saldo_disponivel
-        model.limite_risco = conta.limite_risco
-        model.situacao = conta.situacao
+        model.saldo_disponivel = (
+            conta.saldo_disponivel
+        )
+
+        model.limite_risco = (
+            conta.limite_risco
+        )
+
+        model.situacao = (
+            conta.situacao
+        )
 
         self._db.commit()
+        self._db.refresh(model)
+
+    def atualizar_model(
+        self,
+        model: ContaModel
+    ) -> ContaModel:
+        self._db.commit()
+        self._db.refresh(model)
+
+        return model
