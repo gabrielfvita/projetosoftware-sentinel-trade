@@ -1,93 +1,312 @@
-<div align="center">
+# SentinelTrade
 
-# 🛡️ SentinelTrade
+SentinelTrade é uma plataforma simulada de negociação de ativos financeiros desenvolvida para fins acadêmicos.
 
-### Exercício Integrador — Sistema de Trade Financeiro de Alta Criticidade
+O sistema permite autenticação com segundo fator, gerenciamento e processamento de ordens de compra e venda, validações de risco, persistência relacional, auditoria de eventos e integração simulada com serviços externos.
 
-**Universidade Presbiteriana Mackenzie**  
-**Turma 04D**
+## Tecnologias utilizadas
 
-</div>
+- Python 3.11
+- FastAPI
+- Pydantic
+- SQLAlchemy
+- SQLite
+- Pytest
+- Bandit
+- pip-audit
+- Uvicorn
 
----
-
-## 📌 Exercício Integrador — Sistema SentinelTrade
-
-Em equipes de até **03 integrantes**, desenvolvam a especificação e a modelagem de um **Sistema de Trade Financeiro de Alta Criticidade**, denominado **SentinelTrade**.
-
-O sistema deverá permitir que investidores autorizados acompanhem cotações, mantenham carteira de ativos, enviem ordens de compra e venda e consultem o histórico de operações. Decisões erradas, atrasadas ou não auditáveis podem gerar impacto relevante. Aqui, o impacto é financeiro, regulatório e reputacional.
-
-O sistema deverá ser projetado como uma plataforma **distribuída, segura, escalável e tolerante a falhas**.
-
----
-
-## 📋 Contexto do problema
-
-A corretora fictícia **Orion Capital** opera uma plataforma digital de negociação de ações, ETFs e fundos imobiliários. Atualmente, suas operações dependem de sistemas pouco integrados, dificultando a rastreabilidade das ordens, o controle de risco e a auditoria.
-
-A Orion Capital contratou sua equipe para especificar e modelar o **SentinelTrade**, uma plataforma que deverá:
-
-- autenticar usuários com MFA;
-- manter dados de investidores, contas, carteiras, ativos e limites financeiros;
-- receber cotações em tempo quase real por meio de um provedor externo;
-- permitir ordens de compra, venda, cancelamento e consulta;
-- validar saldo, posição em carteira, limite de risco e situação do mercado antes de transmitir a ordem;
-- integrar-se a uma Bolsa/Corretora simulada;
-- acompanhar o ciclo de vida das ordens;
-- registrar logs de auditoria imutáveis;
-- notificar o investidor sobre execução, rejeição, cancelamento ou falha;
-- operar com mecanismos de recuperação, indisponibilidade controlada e prevenção de duplicidade de ordens.
-
-> **Observação:** Não é necessário integrar com uma bolsa real ou utilizar dinheiro real. O projeto deverá operar com **ativos, contas e cotações simuladas**.
-
----
-
-## 🛠️ Tecnologias
-
-O projeto encontra-se atualmente na etapa de **especificação e modelagem**.
-
-- Git e GitHub — versionamento e gerenciamento do projeto;
-- UML — modelagem do sistema;
-- Markdown — documentação do repositório.
-
-As tecnologias utilizadas na implementação serão adicionadas conforme o desenvolvimento do projeto.
-
----
-
-## 📂 Documentação
-
-A documentação do projeto está disponível na pasta `docs/`, contendo os requisitos, diagramas e casos de uso.
+## Estrutura do projeto
 
 ```text
-docs/
-├── casos de uso/
-├── diagramas/
-└── requisitos/
+app/
+├── api/
+├── database/
+├── domain/
+├── integrations/
+├── repositories/
+├── schemas/
+├── security/
+├── services/
+└── main.py
+
+tests/
+sql/
+Docs/
 ```
 
----
+## Funcionalidades implementadas
 
-## ▶️ Execução
+### Autenticação
 
-O projeto encontra-se atualmente na fase de especificação e modelagem e, portanto, ainda não possui uma aplicação executável.
+- Login por e-mail e senha.
+- Senhas armazenadas utilizando hash.
+- Segundo fator de autenticação (MFA) controlado.
+- Respostas genéricas para credenciais inválidas.
+- Registro de eventos relevantes em auditoria.
 
-As instruções de instalação e execução serão adicionadas conforme o desenvolvimento da implementação.
+### Ordens
 
----
+O sistema permite:
 
-## 👥 Integrantes
+- criar ordens;
+- consultar ordens;
+- atualizar ordens;
+- cancelar ordens;
+- processar ordens por meio de uma bolsa simulada.
 
-| Nome | RA |
-|---|---|
-| Gabriel França Vita | 10438349 |
-| Enzo Conte | 10741326 |
-| Henrique Nani Cerqueira | 10735787 |
+Estados suportados:
 
----
+- `criada`
+- `validada`
+- `enviada`
+- `parcialmente_executada`
+- `executada`
+- `rejeitada`
+- `cancelada`
 
-<div align="center">
+### Regras de negócio
 
-### Universidade Presbiteriana Mackenzie
-**Turma 04D**
+São realizadas validações de:
 
-</div>
+- saldo disponível;
+- posição de ativos;
+- limite de risco;
+- situação da conta;
+- prevenção de duplicidade;
+- transições válidas de estado.
+
+### Carteira e saldo
+
+Quando uma ordem é executada:
+
+- compras debitam o saldo da conta e adicionam ativos à carteira;
+- vendas reduzem a posição e creditam o saldo;
+- execuções parciais alteram somente a quantidade executada.
+
+### Persistência
+
+O sistema utiliza banco de dados relacional SQLite com SQLAlchemy.
+
+Principais tabelas:
+
+- `investidores`
+- `contas`
+- `ativos`
+- `posicoes_carteira`
+- `ordens`
+- `registros_auditoria`
+
+O script SQL da estrutura está disponível em:
+
+```text
+sql/schema.sql
+```
+
+### Auditoria
+
+Eventos relevantes são registrados no banco, incluindo:
+
+- falhas de login;
+- validação de senha;
+- MFA;
+- criação e validação de ordens;
+- duplicidade;
+- envio de ordens;
+- resultado da bolsa;
+- cancelamento;
+- atualização de ordens.
+
+Dados sensíveis, como senha e código MFA, não são gravados nos logs de auditoria.
+
+### Integrações simuladas
+
+O projeto possui integrações simuladas para:
+
+- bolsa/corretora;
+- provedor de cotações;
+- serviço de notificações.
+
+As respostas externas são tratadas como dados não confiáveis e passam por validação.
+
+## Segurança
+
+Foram implementadas práticas de segurança como:
+
+- validação de entrada com Pydantic;
+- allowlist para código de ativos;
+- limites de tamanho e intervalo;
+- consultas via SQLAlchemy;
+- prevenção de SQL Injection;
+- hash seguro de senhas;
+- MFA;
+- prevenção de duplicidade de ordens;
+- ausência de segredos no código-fonte;
+- configuração sensível por `.env`;
+- mensagens de erro controladas;
+- auditoria;
+- validação de dados provenientes de integrações.
+
+Não são utilizadas funções perigosas como `eval()`.
+
+## Configuração
+
+Crie e ative um ambiente virtual.
+
+### Windows
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+Instale as dependências:
+
+```powershell
+pip install -r requirements.txt
+```
+
+## Variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+MFA_TEST_CODE=123456
+```
+
+O arquivo `.env` não deve ser enviado ao repositório.
+
+## Banco de dados
+
+Para criar e popular os dados iniciais:
+
+```powershell
+python -m app.database.seed
+```
+
+Dados de teste:
+
+```text
+E-mail: gabriel@sentineltrade.com
+Senha: Sentinel123
+MFA: 123456
+```
+
+## Executando a aplicação
+
+Execute:
+
+```powershell
+uvicorn app.main:app --reload
+```
+
+A API ficará disponível em:
+
+```text
+http://127.0.0.1:8000
+```
+
+Documentação Swagger:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Verificação da aplicação:
+
+```text
+GET /health
+```
+
+## Principais endpoints
+
+### Autenticação
+
+```text
+POST /auth/login
+POST /auth/mfa
+```
+
+### Ordens
+
+```text
+POST  /ordens
+GET   /ordens/{id_ordem}
+PATCH /ordens/{id_ordem}
+PATCH /ordens/{id_ordem}/cancelar
+POST  /ordens/{id_ordem}/processar
+```
+
+## Testes automatizados
+
+Execute:
+
+```powershell
+pytest -v
+```
+
+Os testes cobrem principalmente:
+
+- criação de ordens;
+- transições de estado;
+- saldo insuficiente;
+- limite de risco;
+- posição insuficiente;
+- conta bloqueada;
+- entradas inválidas;
+- sanitização;
+- MFA.
+
+## Análise de segurança
+
+### Bandit
+
+Execute:
+
+```powershell
+bandit -r app
+```
+
+Resultado esperado:
+
+```text
+No issues identified.
+```
+
+### Dependências
+
+Execute:
+
+```powershell
+pip-audit
+```
+
+Resultado esperado:
+
+```text
+No known vulnerabilities found
+```
+
+## Documentação UML
+
+Os diagramas UML do projeto encontram-se em:
+
+```text
+Docs/Diagramas/
+```
+
+Foram desenvolvidos:
+
+- Casos de Uso
+- Atividades
+- Classes de Análise
+- Classes de Projeto
+- Estados
+- Componentes
+- Sequência
+
+## Observação
+
+O SentinelTrade é um sistema acadêmico e simulado.
+
+Não realiza negociações reais, não movimenta dinheiro real e não possui integração com bolsas de valores reais.
